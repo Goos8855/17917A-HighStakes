@@ -31,8 +31,10 @@ void competition_initialize() { //pre-auto stuff here, runs after initialize()
 void autonomous() { //put auto stuff here
 	lcdClear();
 	pros::lcd::set_text(1, "Running Auto");
+	pros::MotorGroup left_mg({1,3,5});
+	pros::MotorGroup right_mg({2,4,6});
 	while(true) {
-
+		
 	}
 }
 
@@ -54,7 +56,7 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 		// Arcade control scheme
 		int dir = (int(master.get_analog(ANALOG_LEFT_X))*-1);
 		int turn = (int(master.get_analog(ANALOG_LEFT_Y))*-1);
-		double sens = 0.7;
+		double sens = 0.6;
 		left_mg.move((dir + turn * sens)*-1);
 		right_mg.move((dir - turn * sens)*-1);
 		pros::delay(20);
