@@ -11,14 +11,12 @@ void lcdClear() {
 void initialize() {
 	pros::lcd::initialize();
 	pros::lcd::set_text(1, "Starting...");
-	pros::Controller master(pros::E_CONTROLLER_MASTER);
-	pros::MotorGroup left_mg({1,3,5});
-	pros::MotorGroup right_mg({2,4,6});
-	pros::ADIDigitalOut mogoMech(1, false);
-	pros::ADIDigitalOut mogoArm(2, false);
-	pros::Rotation xSensor(20);
-	pros::Rotation ySensor(19);
-	pros::ADIDigitalIn mogoTrigger(3);
+	pros::Controller master(pros::E_CONTROLLER_MASTER); //controller
+	pros::MotorGroup left_mg({1,3,5}); //left wheels
+	pros::MotorGroup right_mg({2,4,6}); //right wheels
+	pros::ADIDigitalOut mogoMech1('A'); //mobile goal clamp
+	pros::ADIDigitalOut mogoMech2('B'); //mobile goal clamp
+	pros::Distance mogoSensor(20); //distance sensor that checks for a mobile goal
 	pros::lcd::set_text(2, "OK");
 
 }
@@ -45,11 +43,11 @@ void autonomous() { //put auto stuff here
 void opcontrol() { //manual control, will run automatically if not connected to field
 	//included control stuff
 	pros::Controller master(pros::E_CONTROLLER_MASTER);
-	pros::MotorGroup left_mg({1,3,5});
-	pros::MotorGroup right_mg({2,4,6});
-	pros::ADIDigitalOut mogoMech(1, false);
-	pros::ADIDigitalOut mogoArm(2, false);
-	pros::ADIDigitalIn mogoTrigger(3);
+	pros::MotorGroup left_mg({1,3,5}); //left motors
+	pros::MotorGroup right_mg({2,4,6}); //right motors
+	pros::ADIDigitalOut mogoMech1('A'); //mogo mech piston
+	pros::ADIDigitalOut mogoMech2('B'); //mogo mech piston
+	pros::Distance mogoSensor(20); //mogo distance sensor
 
 	bool mogoArmed = false;
 
@@ -72,25 +70,27 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 		right_mg.move((spd - turn * sens)*-1);	
 		}
 
-		pros::delay(20);
-
-		//triggering mogo arm
-		if(master.get_digital(DIGITAL_L1)){
-			mogoArm.set_value(0);
-		} 
-		if(master.get_digital(DIGITAL_L2)){
-			mogoArm.set_value(1);
-		}
-
-		//arming and triggering mogo mech
-		if(master.get_digital(DIGITAL_Y) || mogoArmed == true){
-			mogoArmed = true;
-			if(mogoTrigger.get_value()){
-				mogoMech.set_value(1);
+		//toggle mogo armed
+		if(mogoArmed == false){
+			while(master.get_digital(DIGITAL_R1)){
+				mogoArmed = true;
+			}	
+		} else if(mogoArmed == true){
+			while (master.get_digital(DIGITAL_R1))
+			{
 				mogoArmed = false;
-			}
-		} else {
-			mogoMech.set_value(0);
+			}	
 		}
+
+		//arming, toggling, and disarming the mogo mech
+		if(mogoArmed == true && mogoSensor.get_distance()<110){
+			mogoMech1.set_value(HIGH);
+			mogoMech2.set_value(HIGH);
+		} else if(mogoArmed == false){
+			mogoMech1.set_value(LOW);
+			mogoMech2.set_value(LOW);
+		}
+
+		pros::delay(20);
 	}
 }
