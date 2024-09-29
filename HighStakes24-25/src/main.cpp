@@ -61,12 +61,17 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
 		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);  // Prints status of the emulated screen LCDs
 
-		// Arcade control scheme
-		int dir = (int(master.get_analog(ANALOG_LEFT_X))*-1);
+		int spd = (int(master.get_analog(ANALOG_LEFT_X))*-1);
 		int turn = (int(master.get_analog(ANALOG_LEFT_Y))*-1);
 		double sens = 0.6;
-		left_mg.move((dir + turn * sens)*-1);
-		right_mg.move((dir - turn * sens)*-1);
+		if(turn>10 || turn<-10){
+			left_mg.move(spd);
+			right_mg.move(spd);
+		} else {
+		left_mg.move((spd + turn * sens)*-1);
+		right_mg.move((spd - turn * sens)*-1);	
+		}
+
 		pros::delay(20);
 
 		//triggering mogo arm
