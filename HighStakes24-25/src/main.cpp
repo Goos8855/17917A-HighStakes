@@ -44,7 +44,7 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 	pros::Controller master(pros::E_CONTROLLER_MASTER);
 	pros::MotorGroup left_mg({1,3,5}); //left motors
 	pros::MotorGroup right_mg({2,4,6}); //right motors
-	pros::ADIDigitalOut mogoMech('H'); //mogo mech piston
+	pros::ADIDigitalOut mogoMech ('H');//mogo mech piston
 	pros::Distance mogoSensor(20); //mogo distance sensor
 
 	bool mogoArmed = false;
@@ -63,21 +63,14 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 		left_mg.move((spd + turn * sens)*-1);
 		right_mg.move((spd - turn * sens)*-1);
 
-		//pneumatics control	
-		if(master.get_digital(DIGITAL_R1) && mogoArmed == false){
-			while(master.get_digital(DIGITAL_R1)){
-				mogoArmed == true;
-			}
-		} else if(master.get_digital(DIGITAL_R1) && mogoArmed == true){
-			while (master.get_digital(DIGITAL_R1))
-			{
-				mogoArmed == false;
-			}	
+		if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)){
+			mogoArmed = !mogoArmed;
 		}
-		if(mogoArmed){
-			mogoMech.set_value(HIGH);
+
+		if(mogoArmed == true){
+			mogoMech.set_value(true);
 		} else {
-			mogoMech.set_value(LOW);
+			mogoMech.set_value(false);
 		}
 
 		pros::delay(20);
