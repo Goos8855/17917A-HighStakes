@@ -45,7 +45,6 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 	pros::MotorGroup left_mg({1,3,5}); //left motors
 	pros::MotorGroup right_mg({2,4,6}); //right motors
 	pros::ADIDigitalOut mogoMech ('H');//mogo mech piston
-	pros::Distance mogoSensor(20); //mogo distance sensor
 
 	bool mogoTriggered = false;
 	int distance = 0;
@@ -57,8 +56,6 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
 		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
 		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);  // Prints status of the emulated screen LCDs
-
-		distance = mogoSensor.get_distance();
 
 		int spd = (int(master.get_analog(ANALOG_LEFT_X))*-1);
 		int turn = (int(master.get_analog(ANALOG_LEFT_Y))*-1);
