@@ -47,7 +47,8 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 	pros::ADIDigitalOut mogoMech ('H');//mogo mech piston
 	pros::Distance mogoSensor(20); //mogo distance sensor
 
-	bool mogoArmed = false;
+	bool mogoTriggered = false;
+	int distance = 0;
 
 	lcdClear();
 	pros::lcd::print(1, "Driver Control");
@@ -57,6 +58,8 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
 		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);  // Prints status of the emulated screen LCDs
 
+		distance = mogoSensor.get_distance();
+
 		int spd = (int(master.get_analog(ANALOG_LEFT_X))*-1);
 		int turn = (int(master.get_analog(ANALOG_LEFT_Y))*-1);
 		double sens = 0.6;
@@ -64,10 +67,10 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 		right_mg.move((spd - turn * sens)*-1);
 
 		if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)){
-			mogoArmed = !mogoArmed;
+			mogoTriggered = !mogoTriggered;
 		}
 
-		if(mogoArmed == true){
+		if(mogoTriggered == true){
 			mogoMech.set_value(true);
 		} else {
 			mogoMech.set_value(false);
