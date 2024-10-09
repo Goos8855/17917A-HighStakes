@@ -46,7 +46,7 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 	pros::MotorGroup left_mg({1,3,5}); //left motors
 	pros::MotorGroup right_mg({2,4,6}); //right motors
 	pros::ADIDigitalOut mogoMech ('H');//mogo mech piston
-	pros::MotorGroup intake({7,8});
+	pros::MotorGroup intake({7});
 
 	bool mogoTriggered = false;
 	bool intakeToggle = false;
@@ -73,16 +73,24 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 
 		int intakeSpeed = int(master.get_analog(ANALOG_RIGHT_Y));
 
-		intake.move(intakeSpeed);
-
 		if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)){
 			intakeToggle = !intakeToggle;
 		}
 
-		if(intakeToggle == true && intakeReverse == true){
-			intake.move_velocity(-122);
-		} else if(intakeReverse == true){
-			intake.move_velocity(122);
+		if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)){
+			intakeReverse = !intakeReverse;
+		}
+
+		if(master.get_analog(ANALOG_RIGHT_Y) == 0){
+			if(intakeToggle == true && intakeReverse == true){
+				intake.move(127);
+			} else if(intakeToggle == true && intakeReverse == false){
+				intake.move(-127);
+			} else {
+				intake.brake();
+			}
+		} else {
+			intake.move(master.get_analog(ANALOG_RIGHT_Y));
 		}
 
 		if(mogoTriggered == true){
