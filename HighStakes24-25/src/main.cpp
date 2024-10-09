@@ -15,6 +15,7 @@ void initialize() {
 	pros::MotorGroup left_mg({1,3,5}); //left wheels
 	pros::MotorGroup right_mg({2,4,6}); //right wheels
 	pros::ADIDigitalOut mogoMech('H'); //mobile goal clamp
+	pros::Motor intake(7);
 	pros::Distance mogoSensor(20); //distance sensor that checks for a mobile goal
 	pros::lcd::set_text(2, "OK");
 
@@ -45,8 +46,11 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 	pros::MotorGroup left_mg({1,3,5}); //left motors
 	pros::MotorGroup right_mg({2,4,6}); //right motors
 	pros::ADIDigitalOut mogoMech ('H');//mogo mech piston
+	pros::MotorGroup intake({7,8});
 
 	bool mogoTriggered = false;
+	bool intakeToggle = false;
+	bool intakeReverse = false;
 	int distance = 0;
 
 	lcdClear();
@@ -65,6 +69,20 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 
 		if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)){
 			mogoTriggered = !mogoTriggered;
+		}
+
+		int intakeSpeed = int(master.get_analog(ANALOG_RIGHT_Y));
+
+		intake.move(intakeSpeed);
+
+		if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)){
+			intakeToggle = !intakeToggle;
+		}
+
+		if(intakeToggle == true && intakeReverse == true){
+			intake.move_velocity(-122);
+		} else if(intakeReverse == true){
+			intake.move_velocity(122);
 		}
 
 		if(mogoTriggered == true){
