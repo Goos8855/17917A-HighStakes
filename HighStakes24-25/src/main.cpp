@@ -15,7 +15,9 @@ void initialize() {
 	pros::MotorGroup left_mg({1,3,5}); //left wheels
 	pros::MotorGroup right_mg({2,4,6}); //right wheels
 	pros::ADIDigitalOut mogoMech('H'); //mobile goal clamp
-	pros::Motor intake(7);
+	pros::MotorGroup intake({8});
+	pros::MotorGroup upperIntake({7});
+	pros::Distance intakeSensor(9);
 	pros::Distance mogoSensor(20); //distance sensor that checks for a mobile goal
 	pros::lcd::set_text(2, "OK");
 
@@ -46,12 +48,16 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 	pros::MotorGroup left_mg({1,3,5}); //left motors
 	pros::MotorGroup right_mg({2,4,6}); //right motors
 	pros::ADIDigitalOut mogoMech ('H');//mogo mech piston
-	pros::MotorGroup intake({7});
+	pros::MotorGroup intake({8});
+	pros::MotorGroup upperIntake({7});
+	pros::Distance intakeSensor(9);
+	pros::MotorGroup wallStake({-20});
 
 	bool mogoTriggered = false;
 	bool intakeToggle = false;
 	bool intakeReverse = false;
-	int distance = 0;
+	bool wallStakeToggle = false;
+	int distance = 10000000;
 
 	lcdClear();
 	pros::lcd::print(1, "Driver Control");
@@ -82,21 +88,38 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 		}
 
 		if(master.get_analog(ANALOG_RIGHT_Y) == 0){
-			if(intakeToggle == true && intakeReverse == true){
-				intake.move(127);
-			} else if(intakeToggle == true && intakeReverse == false){
+
+			distance = intakeSensor.get();
+			pros::lcd::print(3, "%d", distance);
+
+			if(intakeToggle == true && intakeReverse == false){
 				intake.move(-127);
+				upperIntake.move(-127);
+			} else if(intakeToggle == true && intakeReverse == true){
+				intake.move(127);
+				upperIntake.move(127);
 			} else {
 				intake.brake();
 			}
 		} else {
 			intake.move(master.get_analog(ANALOG_RIGHT_Y));
+			upperIntake.move(master.get_analog(ANALOG_RIGHT_Y));
 		}
 
 		if(mogoTriggered == true){
 			mogoMech.set_value(true);
 		} else {
 			mogoMech.set_value(false);
+		}
+
+		if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)){
+			wallStakeToggle = !wallStakeToggle;
+		}
+
+		if(wallStakeToggle){
+			wallStake.move(-127);
+		} else {
+			wallStake.brake();
 		}
 
 		pros::delay(20);
