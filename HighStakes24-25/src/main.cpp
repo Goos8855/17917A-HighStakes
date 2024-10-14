@@ -123,7 +123,7 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 			wallStakeToggle = !wallStakeToggle;
 		}
 
-		if(wallStakeToggle){
+		if(wallStakeToggle == true){
 			wallMech.set_value(true);
 		} else {
 			wallMech.set_value(false);
