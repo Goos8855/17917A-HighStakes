@@ -41,9 +41,11 @@ void autonomous() { //put auto stuff here
 	pros::lcd::set_text(1, "Running Auto");
 	pros::MotorGroup left_mg({1,3,5});
 	pros::MotorGroup right_mg({2,4,6});
-	while(true) {
-		
-	}
+	left_mg.move(127);
+	right_mg.move(-127);
+	pros::delay(880);
+	right_mg.brake();
+	left_mg.brake();
 }
 
 void opcontrol() { //manual control, will run automatically if not connected to field
