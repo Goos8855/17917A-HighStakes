@@ -1,4 +1,5 @@
 #include "main.h"
+#include "pros/apix.h"
 
 void lcdClear() {
 	pros::lcd::clear_line(1);
@@ -26,6 +27,7 @@ void initialize() {
 
 void disabled() { // when robot is disabled by the field
 	lcdClear();
+	pros::lcd::set_text(6, "17917A: A nother Robot");
 	pros::lcd::set_text(1, "Disabled");
 }
 
@@ -35,6 +37,7 @@ void competition_initialize() { //pre-auto stuff here, runs after initialize()
 
 void autonomous() { //put auto stuff here
 	lcdClear();
+	pros::lcd::set_text(6,"17917A: A nother Robot");
 	pros::lcd::set_text(1, "Running Auto");
 	pros::MotorGroup left_mg({1,3,5});
 	pros::MotorGroup right_mg({2,4,6});
@@ -45,6 +48,7 @@ void autonomous() { //put auto stuff here
 
 void opcontrol() { //manual control, will run automatically if not connected to field
 	//included control stuff
+	pros::lcd::set_text(6,"17917A: A nother Robot");
 	pros::Controller master(pros::E_CONTROLLER_MASTER);
 	pros::MotorGroup left_mg({1,3,5}); //left motors
 	pros::MotorGroup right_mg({2,4,6}); //right motors
@@ -52,7 +56,7 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 	pros::ADIDigitalOut wallMech ('G'); //wall stake thingy
 	pros::MotorGroup intake({8}); // lower part of intake
 	pros::MotorGroup upperIntake({7}); //upper part of intake
-	pros::Distance intakeSensor(9);
+	pros::Distance intakeSensor(11);
 	pros::MotorGroup wallStake({-20}); // basket motor thingy (what do you call that?)
 
 	bool mogoTriggered = false;
@@ -95,11 +99,19 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 			pros::lcd::print(3, "%d", distance);
 
 			if(intakeToggle == true && intakeReverse == false){
-				intake.move(-127);
+				if(intakeSensor.get() < 70){
+					intake.brake();
+				} else {
+					intake.move(-127);
+				}
 				upperIntake.move(-127);
 				wallStake.move(127);
 			} else if(intakeToggle == true && intakeReverse == true){
-				intake.move(127);
+				if(intakeSensor.get() > 70){
+					intake.brake();
+				} else {
+					intake.move(127);
+				}
 				upperIntake.move(127);
 				wallStake.move(-127);
 			} else {
@@ -108,7 +120,12 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 				wallStake.brake();
 			}
 		} else {
-			intake.move(master.get_analog(ANALOG_RIGHT_Y));
+			if(intakeSensor.get() < 70){
+				intake.brake();
+			} else {
+				intake.move(master.get_analog(ANALOG_RIGHT_Y));
+			}
+			
 			upperIntake.move(master.get_analog(ANALOG_RIGHT_Y));
 			wallStake.move(master.get_analog(ANALOG_RIGHT_Y));
 		}
