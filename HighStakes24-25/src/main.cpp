@@ -73,8 +73,8 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
 		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);  // Prints status of the emulated screen LCDs
 
-		int spd = (int(master.get_analog(ANALOG_LEFT_X))*-1);
-		int turn = (int(master.get_analog(ANALOG_LEFT_Y))*-1);
+		int spd = (int(master.get_analog(ANALOG_LEFT_X)));
+		int turn = (int(master.get_analog(ANALOG_LEFT_Y)));
 		double sens = 0.6;
 		left_mg.move((spd + turn * sens)*-1);
 		right_mg.move((spd - turn * sens)*-1);
