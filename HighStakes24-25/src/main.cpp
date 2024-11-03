@@ -15,7 +15,6 @@ void initialize() {
 	pros::MotorGroup left_mg({1,3,5}); //left wheels
 	pros::MotorGroup right_mg({2,4,6}); //right wheels
 	pros::ADIDigitalOut mogoMech('H'); //mobile goal clamp
-	pros::ADIDigitalOut wallMech ('G'); //wall stake thingy
 	pros::MotorGroup intake({8});
 	pros::MotorGroup upperIntake({7});
 	pros::Distance intakeSensor(9);
@@ -65,10 +64,9 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 	pros::MotorGroup left_mg({15,17,19});//left motors
 	pros::MotorGroup right_mg({16,18,20});//right motors
 	pros::ADIDigitalOut mogoMech ('H');//mogo mech piston
-	pros::MotorGroup intake({-8}); // lower part of intake
-	pros::MotorGroup upperIntake({7}); //upper part of intake
+	pros::MotorGroup LeftWall({-8}); // lower part of intake
+	pros::MotorGroup RightWall({7}); //upper part of intake
 	pros::Distance intakeSensor(9);
-	pros::MotorGroup wallStake({-20}); // basket motor thingy (what do you call that?)
 
 	bool mogoTriggered = false;
 	bool intakeToggle = false;
@@ -96,37 +94,14 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 
 		int intakeSpeed = int(master.get_analog(ANALOG_RIGHT_Y));
 
-		if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)){
-			intakeToggle = !intakeToggle;
-		}
-
 		if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)){
 			intakeReverse = !intakeReverse;
 		}
 
-		if(master.get_analog(ANALOG_RIGHT_Y) == 0){
+		LeftWall.move(master.get_analog(ANALOG_RIGHT_Y));
+		RightWall.move(master.get_analog(ANALOG_RIGHT_Y));
 
-			distance = intakeSensor.get();
-			pros::lcd::print(3, "%d", distance);
 
-			if(intakeToggle == true && intakeReverse == false){
-				intake.move(-127);
-				upperIntake.move(-127);
-				wallStake.move(127);
-			} else if(intakeToggle == true && intakeReverse == true){
-				intake.move(127);
-				upperIntake.move(127);
-				wallStake.move(-127);
-			} else {
-				intake.brake();
-				upperIntake.brake();
-				wallStake.brake();
-			}
-		} else {
-			intake.move(master.get_analog(ANALOG_RIGHT_Y));
-			upperIntake.move(master.get_analog(ANALOG_RIGHT_Y));
-			wallStake.move(master.get_analog(ANALOG_RIGHT_Y));
-		}
 
 		if(mogoTriggered == true){
 			mogoMech.set_value(true);
