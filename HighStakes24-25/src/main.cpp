@@ -39,36 +39,21 @@ void autonomous() { //put auto stuff here
 	lcdClear();
 	pros::lcd::set_text(6,"17917A: A nother Robot");
 	pros::lcd::set_text(1, "Running Auto");
-	pros::MotorGroup left_mg({15,17,19});
-	pros::MotorGroup right_mg({16,18,20});
-	pros::MotorGroup upperIntake({7});
-	bool autosel = false;
-	upperIntake.move(-127);
-	pros::delay(2500);
-	upperIntake.brake();
-	left_mg.move(-127);
-	right_mg.move(127);
-	pros::delay(1000);
-	left_mg.brake();
-	right_mg.brake();
-	upperIntake.move(-127);
-	pros::delay(1000);
-	upperIntake.brake();
-	left_mg.move(127);
-	right_mg.move(-127);
-	pros::delay(500);
-	left_mg.brake();
-	right_mg.brake();
+	pros::MotorGroup left_mg({1,3,5});
+	pros::MotorGroup right_mg({2,4,6});
+	while(true) {
 		
+	}
 }
 
 void opcontrol() { //manual control, will run automatically if not connected to field
 	//included control stuff
 	pros::lcd::set_text(6,"17917A: A nother Robot");
 	pros::Controller master(pros::E_CONTROLLER_MASTER);
-	pros::MotorGroup left_mg({15,17,19});//left motors
-	pros::MotorGroup right_mg({16,18,20});//right motors
+	pros::MotorGroup left_mg({1,3,5}); //left motors
+	pros::MotorGroup right_mg({2,4,6}); //right motors
 	pros::ADIDigitalOut mogoMech ('H');//mogo mech piston
+	pros::ADIDigitalOut wallMech ('G'); //wall stake thingy
 	pros::MotorGroup intake({8}); // lower part of intake
 	pros::MotorGroup upperIntake({7}); //upper part of intake
 	pros::Distance intakeSensor(11);
@@ -154,6 +139,13 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 		if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)){
 			wallStakeToggle = !wallStakeToggle;
 		}
+
+		if(wallStakeToggle == true){
+			wallMech.set_value(true);
+		} else {
+			wallMech.set_value(false);
+		}
+
 		pros::delay(20);
 	}
 }
