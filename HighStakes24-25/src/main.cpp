@@ -65,7 +65,7 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 	pros::MotorGroup left_mg({15,17,19});//left motors
 	pros::MotorGroup right_mg({16,18,20});//right motors
 	pros::ADIDigitalOut mogoMech ('H');//mogo mech piston
-	pros::MotorGroup intake({8}); // lower part of intake
+	pros::MotorGroup intake({-8}); // lower part of intake
 	pros::MotorGroup upperIntake({7}); //upper part of intake
 	pros::Distance intakeSensor(9);
 	pros::MotorGroup wallStake({-20}); // basket motor thingy (what do you call that?)
