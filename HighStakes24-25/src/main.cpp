@@ -40,7 +40,7 @@ void competition_initialize() { //pre-auto stuff here, runs after initialize()
 	
 }
 
-void pid(double dx, double dy) {
+void pid(double dx, double dy) { //proportional, integral, derivative
 	
 }
 
