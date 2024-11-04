@@ -1,5 +1,20 @@
 #include "main.h"
 
+//declaring ports n stuff
+pros::Controller master(pros::E_CONTROLLER_MASTER);
+pros::MotorGroup left_mg({15,17,19});//left motors
+pros::MotorGroup right_mg({16,18,20});//right motors
+pros::ADIDigitalOut mogoMech ('H');//mogo mech piston
+pros::MotorGroup LeftWall({-8}); // lower part of intake
+pros::MotorGroup RightWall({7}); //upper part of intake
+pros::Distance intakeSensor(9);
+
+bool mogoTriggered = false;
+bool intakeToggle = false;
+bool intakeReverse = false;
+bool wallStakeToggle = false;
+int distance = 10000000;
+
 void lcdClear() {
 	pros::lcd::clear_line(1);
 	pros::lcd::clear_line(2);
@@ -11,14 +26,7 @@ void lcdClear() {
 void initialize() {
 	pros::lcd::initialize();
 	pros::lcd::set_text(1, "Starting...");
-	pros::Controller master(pros::E_CONTROLLER_MASTER); //controller
-	pros::MotorGroup left_mg({1,3,5}); //left wheels
-	pros::MotorGroup right_mg({2,4,6}); //right wheels
-	pros::ADIDigitalOut mogoMech('H'); //mobile goal clamp
-	pros::MotorGroup intake({8});
-	pros::MotorGroup upperIntake({7});
-	pros::Distance intakeSensor(9);
-	pros::Distance mogoSensor(20); //distance sensor that checks for a mobile goal
+	
 	pros::lcd::set_text(2, "OK");
 
 }
@@ -32,47 +40,18 @@ void competition_initialize() { //pre-auto stuff here, runs after initialize()
 	
 }
 
+void pid(double dx, double dy) {
+	
+}
+
 void autonomous() { //put auto stuff here
 	lcdClear();
 	pros::lcd::set_text(1, "Running Auto");
-	pros::MotorGroup left_mg({15,17,19});
-	pros::MotorGroup right_mg({16,18,20});
-	pros::MotorGroup upperIntake({7});
-	bool autosel = false;
-	upperIntake.move(-127);
-	pros::delay(2500);
-	upperIntake.brake();
-	left_mg.move(-127);
-	right_mg.move(127);
-	pros::delay(1000);
-	left_mg.brake();
-	right_mg.brake();
-	upperIntake.move(-127);
-	pros::delay(1000);
-	upperIntake.brake();
-	left_mg.move(127);
-	right_mg.move(-127);
-	pros::delay(500);
-	left_mg.brake();
-	right_mg.brake();
 		
 }
 
 void opcontrol() { //manual control, will run automatically if not connected to field
 	//included control stuff
-	pros::Controller master(pros::E_CONTROLLER_MASTER);
-	pros::MotorGroup left_mg({15,17,19});//left motors
-	pros::MotorGroup right_mg({16,18,20});//right motors
-	pros::ADIDigitalOut mogoMech ('H');//mogo mech piston
-	pros::MotorGroup LeftWall({-8}); // lower part of intake
-	pros::MotorGroup RightWall({7}); //upper part of intake
-	pros::Distance intakeSensor(9);
-
-	bool mogoTriggered = false;
-	bool intakeToggle = false;
-	bool intakeReverse = false;
-	bool wallStakeToggle = false;
-	int distance = 10000000;
 
 	lcdClear();
 	pros::lcd::print(1, "Driver Control");
@@ -84,7 +63,7 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 
 		int spd = (int(master.get_analog(ANALOG_LEFT_X)));
 		int turn = (int(master.get_analog(ANALOG_LEFT_Y)));
-		double sens = 0.6;
+		double sens = 1;
 		left_mg.move((spd + turn * sens)*-1);
 		right_mg.move((spd - turn * sens)*-1);
 
