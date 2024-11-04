@@ -1,1 +1,2 @@
-# 17917A Robot code for High Stakes 24-25 season
+# 17917A
+V5RC: High Stakes robot code for 17917A
