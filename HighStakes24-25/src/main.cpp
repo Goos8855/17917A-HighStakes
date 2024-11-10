@@ -5,9 +5,12 @@ pros::Controller master(pros::E_CONTROLLER_MASTER);
 pros::MotorGroup left_mg({15,17,19});//left motors
 pros::MotorGroup right_mg({16,18,20});//right motors
 pros::ADIDigitalOut mogoMech ('H');//mogo mech piston
-pros::MotorGroup LeftWall({-8}); // lower part of intake
+pros::MotorGroup LeftWall({-6}); // lower part of intake
 pros::MotorGroup RightWall({7}); //upper part of intake
 pros::Distance intakeSensor(9);
+pros::MotorGroup upperIntake({3});
+pros::MotorGroup lowerIntake({2});
+pros::Rotation yAxis(11);
 
 bool mogoTriggered = false;
 bool intakeToggle = false;
@@ -72,14 +75,8 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 		}
 
 		int intakeSpeed = int(master.get_analog(ANALOG_RIGHT_Y));
-
-		if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)){
-			intakeReverse = !intakeReverse;
-		}
-
-		LeftWall.move(master.get_analog(ANALOG_RIGHT_Y));
-		RightWall.move(master.get_analog(ANALOG_RIGHT_Y));
-
+		upperIntake.move(intakeSpeed);
+		lowerIntake.move(intakeSpeed);
 
 
 		if(mogoTriggered == true){
@@ -90,6 +87,11 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 
 		if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)){
 			wallStakeToggle = !wallStakeToggle;
+		}
+
+		if(wallStakeToggle){
+			LeftWall.move_absolute(-450,600);
+			RightWall.move_absolute(450,600);
 		}
 		pros::delay(20);
 	}
