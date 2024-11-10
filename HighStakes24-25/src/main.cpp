@@ -92,6 +92,9 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 		if(wallStakeToggle){
 			LeftWall.move_absolute(-450,600);
 			RightWall.move_absolute(450,600);
+		} else {
+			LeftWall.move_absolute(0,600);
+			RightWall.move_absolute(0,600);
 		}
 		pros::delay(20);
 	}
