@@ -1,4 +1,5 @@
 #include "main.h"
+#include <math.h>
 
 //declaring ports n stuff
 pros::Controller master(pros::E_CONTROLLER_MASTER);
@@ -17,6 +18,8 @@ bool intakeToggle = false;
 bool intakeReverse = false;
 bool wallStakeToggle = false;
 int distance = 10000000;
+bool wallStakeLock = false;
+int updateDelay = 0;
 
 void lcdClear() {
 	pros::lcd::clear_line(1);
@@ -66,7 +69,7 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 
 		int spd = (int(master.get_analog(ANALOG_LEFT_X)));
 		int turn = (int(master.get_analog(ANALOG_LEFT_Y)));
-		double sens = 1;
+		double sens = 1.2;
 		left_mg.move((spd + turn * sens)*-1);
 		right_mg.move((spd - turn * sens)*-1);
 
@@ -74,7 +77,7 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 			mogoTriggered = !mogoTriggered;
 		}
 
-		int intakeSpeed = int(master.get_analog(ANALOG_RIGHT_Y));
+		int intakeSpeed = int(master.get_analog(ANALOG_RIGHT_Y))*-1;
 		upperIntake.move(intakeSpeed);
 		lowerIntake.move(intakeSpeed);
 
@@ -89,13 +92,29 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 			wallStakeToggle = !wallStakeToggle;
 		}
 
-		if(wallStakeToggle){
-			LeftWall.move_absolute(-450,600);
-			RightWall.move_absolute(450,600);
-		} else {
+		if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)){
+			wallStakeLock = !wallStakeLock;
+		}
+
+		if(wallStakeLock){
+			LeftWall.move_absolute(200,1200);
+			RightWall.move_absolute(200,1200);
+		}
+
+		if(wallStakeToggle && wallStakeLock == false){
+			LeftWall.move_absolute(1400,1200);
+			RightWall.move_absolute(1400,1200);
+		} else if (wallStakeLock == false && wallStakeToggle == false) {
 			LeftWall.move_absolute(0,600);
 			RightWall.move_absolute(0,600);
 		}
 		pros::delay(20);
+
+		if(updateDelay<6){
+			++updateDelay;
+		} else {
+			updateDelay = 0;
+			master.set_text(0, 0, std::to_string(mogoTriggered) + " " + std::to_string(wallStakeToggle));
+		}
 	}
 }
