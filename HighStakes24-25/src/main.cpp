@@ -116,5 +116,6 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 			updateDelay = 0;
 			master.set_text(0, 0, std::to_string(mogoTriggered) + " " + std::to_string(wallStakeToggle));
 		}
+		pros::lcd::set_text(3,std::to_string(yAxis.get_position()));
 	}
 }
