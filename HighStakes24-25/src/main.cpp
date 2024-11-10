@@ -69,7 +69,7 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 
 		int spd = (int(master.get_analog(ANALOG_LEFT_X)));
 		int turn = (int(master.get_analog(ANALOG_LEFT_Y)));
-		double sens = 1.2;
+		double sens = 1.25;
 		left_mg.move((spd + turn * sens)*-1);
 		right_mg.move((spd - turn * sens)*-1);
 
@@ -97,8 +97,8 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 		}
 
 		if(wallStakeLock){
-			LeftWall.move_absolute(200,1200);
-			RightWall.move_absolute(200,1200);
+			LeftWall.move_absolute(350,1200);
+			RightWall.move_absolute(350,1200);
 		}
 
 		if(wallStakeToggle && wallStakeLock == false){
