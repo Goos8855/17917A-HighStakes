@@ -12,6 +12,7 @@ pros::Distance intakeSensor(9);
 pros::MotorGroup upperIntake({3});
 pros::MotorGroup lowerIntake({2});
 pros::Rotation yAxis(11);
+pros::IMU intertial(10);
 
 bool mogoTriggered = false;
 bool intakeToggle = false;
@@ -20,6 +21,7 @@ bool wallStakeToggle = false;
 int distance = 10000000;
 bool wallStakeLock = false;
 int updateDelay = 0;
+double heading = 0;
 
 void lcdClear() {
 	pros::lcd::clear_line(1);
@@ -32,7 +34,9 @@ void lcdClear() {
 void initialize() {
 	pros::lcd::initialize();
 	pros::lcd::set_text(1, "Starting...");
-	
+	yAxis.reset();
+	intertial.tare();
+	heading = intertial.get_heading();
 	pros::lcd::set_text(2, "OK");
 
 }
@@ -46,8 +50,41 @@ void competition_initialize() { //pre-auto stuff here, runs after initialize()
 	
 }
 
-void pid(double dx, double dy) { //proportional, integral, derivative
-	
+void move(double dist, double align) { //auton movement function
+	//set up sensors n' variables
+	yAxis.reset();
+	heading = intertial.get_heading();
+	double deltaRotation = (heading-align)*-1;
+	int spd = 0;
+
+	//heading alignment
+	if(deltaRotation<0){
+		while(heading != align){
+			deltaRotation = (heading-align)*-1;
+			left_mg.move(deltaRotation*-1);
+			right_mg.move(deltaRotation);
+		}
+	} else if (deltaRotation>0){
+		while(heading != align){
+			deltaRotation = (heading-align)*-1;
+			left_mg.move(deltaRotation);
+			right_mg.move(deltaRotation*-1);
+		}
+	}
+
+	//moving on the y axis
+	while(spd<10){
+		if(dist>0){
+			spd = (dist-(((yAxis.get_position())/360)/12))*100;
+			left_mg.move(spd);
+			right_mg.move(spd);
+		} else if (dist<0){
+			spd = (abs(dist)-(yAxis.get_position()/360)/20)*-100;
+			left_mg.move(spd);
+			right_mg.move(spd);
+		}
+	}
+	pros::delay(20);
 }
 
 void autonomous() { //put auto stuff here
@@ -63,6 +100,7 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 	pros::lcd::print(1, "Driver Control");
 
 	while (true) {
+		heading = intertial.get_heading();
 		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
 		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
 		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);  // Prints status of the emulated screen LCDs
@@ -94,11 +132,14 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 
 		if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)){
 			wallStakeLock = !wallStakeLock;
+			if(!wallStakeLock){
+				wallStakeToggle = false;
+			}
 		}
 
 		if(wallStakeLock){
-			LeftWall.move_absolute(350,1200);
-			RightWall.move_absolute(350,1200);
+			LeftWall.move_absolute(400,1200);
+			RightWall.move_absolute(400,1200);
 		}
 
 		if(wallStakeToggle && wallStakeLock == false){
