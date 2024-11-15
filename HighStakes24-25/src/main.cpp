@@ -8,11 +8,12 @@ pros::MotorGroup right_mg({16,18,20});//right motors
 pros::ADIDigitalOut mogoMech ('H');//mogo mech piston
 pros::MotorGroup LeftWall({-6}); // lower part of intake
 pros::MotorGroup RightWall({7}); //upper part of intake
-pros::Distance intakeSensor(9);
-pros::MotorGroup upperIntake({3});
-pros::MotorGroup lowerIntake({2});
-pros::Rotation yAxis(11);
-pros::IMU intertial(10);
+pros::Distance intakeSensor(9); //not actually installed now
+pros::MotorGroup upperIntake({3}); //upper part of the intake
+pros::MotorGroup lowerIntake({-2}); //lower part of the intake
+pros::Rotation yAxis(11); //odometry wheel
+pros::IMU intertial(10); //intertial sensor
+pros::ADIDigitalOut doinker('G'); //doinker/scoop arm thing
 
 bool mogoTriggered = false;
 bool intakeToggle = false;
@@ -22,6 +23,7 @@ int distance = 10000000;
 bool wallStakeLock = false;
 int updateDelay = 0;
 double heading = 0;
+bool doink = false;
 
 void lcdClear() {
 	pros::lcd::clear_line(1);
@@ -136,6 +138,11 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 				wallStakeToggle = false;
 			}
 		}
+
+		if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)){
+			doink = !doink;
+		}
+		doinker.set_value(doink);
 
 		if(wallStakeLock){
 			LeftWall.move_absolute(400,1200);
