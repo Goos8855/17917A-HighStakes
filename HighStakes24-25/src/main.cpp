@@ -9,8 +9,8 @@ pros::ADIDigitalOut mogoMech ('H');//mogo mech piston
 pros::MotorGroup LeftWall({-6}); // lower part of intake
 pros::MotorGroup RightWall({7}); //upper part of intake
 pros::Distance intakeSensor(9); //not actually installed now
-pros::MotorGroup upperIntake({3}); //upper part of the intake
-pros::MotorGroup lowerIntake({-2}); //lower part of the intake
+pros::MotorGroup upperIntake({-3}); //upper part of the intake
+pros::MotorGroup lowerIntake({2}); //lower part of the intake
 pros::Rotation yAxis(11); //odometry wheel
 pros::IMU intertial(10); //intertial sensor
 pros::ADIDigitalOut doinker('G'); //doinker/scoop arm thing
@@ -150,8 +150,8 @@ void opcontrol() { //manual control, will run automatically if not connected to 
 		}
 
 		if(wallStakeToggle && wallStakeLock == false){
-			LeftWall.move_absolute(1400,1200);
-			RightWall.move_absolute(1400,1200);
+			LeftWall.move_absolute(850,1200);
+			RightWall.move_absolute(850,1200);
 		} else if (wallStakeLock == false && wallStakeToggle == false) {
 			LeftWall.move_absolute(0,600);
 			RightWall.move_absolute(0,600);
